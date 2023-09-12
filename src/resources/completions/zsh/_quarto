@@ -1,0 +1,249 @@
+#compdef quarto
+
+_quarto() {
+    local line state
+
+    _arguments -s -S \
+        {-h,-help}"[Show help]" \
+        {-V,--version}"[Show version]"
+
+    _arguments -C \
+        "1: :->cmds"  \
+        "*::arg:->args"
+
+        case "$state" in
+            cmds)
+                _values "quarto command" \
+                        "render[Render files or projects to various document types]" \
+                        "preview[Render and preview a document or website project]" \
+                        "serve[Serve a Shiny interactive document]" \
+                        "create-project[Create a project for rendering multiple documents]" \
+                        "convert[Convert document to alternate representations]" \
+                        "pandoc[Run the version of Pandoc embedded within Quarto]" \
+                        "run[Run a typescript, R, Python, or Lua script]" \
+                        "add[Add an extension to this folder or project]" \
+                        "install[Installs an extension or global dependency]" \
+                        "publish[Publish a document or project]" \
+                        "check[Verify corrrect functioning of Quarto installation]" \
+                        "help[Show this help or the help of a subcommand]"
+                ;;
+            args)
+                case $line[1] in
+                    render)
+                        _render_cmd
+                        ;;
+                    preview)
+                        _preview_cmd
+                        ;;
+                    serve)
+                        _serve_cmd
+                        ;;
+                    create-project)
+                        _create-project_cmd
+                        ;;
+                    convert)
+                        _convert_cmd
+                        ;;
+                    pandoc)
+                        _pandoc
+                        ;;
+                    run)
+                        _general_cmd
+                        ;;
+                    install)
+                        _install_cmd
+                        ;;
+                    publish)
+                        _publish_cmd
+                        ;;
+                    check)
+                        _general_cmd
+                        ;;
+                    help)
+                        _help_cmd
+                        ;;
+                esac
+                ;;
+        esac
+}
+
+_render_cmd() {
+
+    local line state
+
+    _arguments -C \
+        "1: :->cmds"  \
+        "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _files
+            ;;
+        args)
+            compadd pandoc-args
+            _arguments -s -S \
+                {-h,--help}"[Show this help]" \
+                {-t,--to}"[Specify output format(s)]:(formats):(html pdf docx)" \
+                {-o,--output}"[Write output to FILE (use '--output -' for stdout)]" \
+                --output-dir"[Write project output to DIR (path is project relative)]" \
+                {-M,--metadata}"[Metadata value (KEY:VALUE)]" \
+                --site-url"[Override site-url for website or book ouptut]" \
+                --execute"[Execute code (--no-execute to skip execution)]" \
+                {-P,--execute-param}"[Execution parameter (KEY:VALUE)]" \
+                --execute-params"[YAML file with execution parameters]" \
+                --execute-dir"[Working directory for code execution]" \
+                --execute-daemon"[Keep Jupyter kernel alive (defaults to 300 seconds)]" \
+                --execute-daemon-restart"[Restart keepalive Jupyter kernel before render]" \
+                --execute-debug"[Show debug output for Jupyter kernel]" \
+                --use-freezer"[Force use of frozen computations for an incremental file render]" \
+                --cache"[Cache execution output (--no-cache to prevent cache)]" \
+                --cache-refresh"[Force refresh of execution cache]" \
+                --no-clean"[Do not clean project output-dir prior to render]" \
+                --debug"[Leave intermediate files in place after render]" \
+                --log"[Path to log file]" \
+                --log-level"[Log level]:(log level):(info warning error critical)" \
+                --log-format"[Log format]:(log format):(plain json-stream)" \
+                --quiet"[Suppress console output]" \
+                --profile"[Active project profile(s)]"
+                case $line[2] in
+                    pandoc-args)
+                        _pandoc
+                        ;;
+                esac
+                ;;
+    esac
+}
+
+_preview_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        {-p,--port}"[The TCP port that the application should listen on]" \
+        --host"[Hostname to bind to (defaults to 127.0.0.1)]" \
+        --render"[Render to the specified format(s) before previewing]" \
+        --no-navigate"[Don't navigate the browser automatically when outputs are updated]" \
+        --no-browser"[Do not open a browser to the site after publishing]" \
+        --no-watch-inputs"[Do not re-render input files when they change]" \
+        --timeout"[Time (in seconds) after which to exit if there are no active clients]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]"
+}
+
+_serve_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        --no-render"[Do not render the document before serving]" \
+        {-p,--port}"[The TCP port that the application should listen on]" \
+        --host"[Hostname to bind to (defaults to 127.0.0.1)]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]" \
+        "*:filename:_files"
+}
+
+_create-project_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        --title"[Project title]" \
+        --type"[Project type]:(type):(book default website)" \
+        --template"[Use a specific project template]" \
+        --engine"[Use execution engine]:(engine):(markdown jupyter knitr)" \
+        --editor"[Default editor for project]:(editor):(source visual)" \
+        --with-venv"[Create a virtualenv for this project]" \
+        --with-condaenv"[Create a condaenv for this project]" \
+        --no-scaffold"[Don't create initial project file(s)]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]"
+}
+
+_convert_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        {-o,--output}"[Write output to PATH]" \
+        --with-ids"[Include ids in conversion]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]" \
+        "*:filename:_files"
+}
+
+_install_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        --no-prompt"[Do not prompt to confirm actions]" \
+        --embed"[<extensionID> Embed this extension within another extension (used when authoring extensions)]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]"
+}
+
+_publish_cmd() {
+
+    local line state
+
+    _arguments -C \
+        "1: :->cmds"  \
+        "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "quarto-pub[Publish project to Quarto Pub]" \
+                    "gh-pages[Publish project to Github Pages]" \
+                    "connect[Publish project to Posit Connect]" \
+                    "netlify[Publish project to Netlify]" \
+                    "confluence[Publish project to Confluence]" \
+                    "accounts[Manage/remove publishing accounts]"
+            _files
+            ;;
+        args)
+            _arguments -s -S \
+                {-h,--help}"[Show this help]" \
+                --id"[Identifier of content to publish]" \
+                --server"[Server to publish to]" \
+                --token"[Access token for publising provider]" \
+                --no-render"[Do not render before publishing]" \
+                --no-prompt"[Do not prompt to confirm actions]" \
+                --no-browser"[Do not open a browser to the site after publishing]" \
+                --log"[Path to log file"] \
+                --log-level"[Log level]:(log level):(info warning error critical)" \
+                --log-format"[Log format]:(log format):(plain json-stream)" \
+                --quiet"[Suppress console output]"
+    esac
+}
+
+_general_cmd() {
+    _arguments -s -S \
+        {-h,--help}"[Show this help]" \
+        --log"[Path to log file"] \
+        --log-level"[Log level]:(log level):(info warning error critical)" \
+        --log-format"[Log format]:(log format):(plain json-stream)" \
+        --quiet"[Suppress console output]" \
+        "*:filename:_files"
+}
+
+_help_cmd() {
+    quarto_commands=(
+        'render'
+        'preview'
+        'serve'
+        'create'
+        'create-project'
+        'convert'
+        'pandoc'
+        'run'
+        'install'
+        'publish'
+        'check'
+        'help'
+        )
+    _describe -t quarto_commands 'command' quarto_commands
+}
+
+_quarto
+
